@@ -29,12 +29,13 @@ class Segmenter(nn.Module):
         )
         return nwd_params
 
-    def forward(self, im):
-        H_ori, W_ori = im.size(2), im.size(3)
-        im = padding(im, self.patch_size)
-        H, W = im.size(2), im.size(3)
-
-        x = self.encoder(im, return_features=True)
+    def forward(self, im_fgr, im_bgr):
+        H_ori, W_ori = im_fgr.size(2), im_fgr.size(3)
+        im_fgr = padding(im_fgr, self.patch_size)
+        im_bgr = padding(im_bgr, self.patch_size)
+        H, W = im_fgr.size(2), im_fgr.size(3)
+        
+        x = self.encoder(torch.cat([im_fgr, im_bgr], dim = 1), return_features=True)
 
         # remove CLS/DIST tokens for decoding
         num_extra_tokens = 1 + self.encoder.distilled
@@ -45,7 +46,7 @@ class Segmenter(nn.Module):
         masks = F.interpolate(masks, size=(H, W), mode="bilinear")
         masks = unpadding(masks, (H_ori, W_ori))
 
-        return masks
+        return masks[:,:1,:,:], masks[:,1:4,:,:], masks[:,4:5,:,:], masks[:,5:,:,:]
 
     def get_attention_map_enc(self, im, layer_id):
         return self.encoder.get_attention_map(im, layer_id)

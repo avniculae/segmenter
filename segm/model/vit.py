@@ -48,7 +48,7 @@ class VisionTransformer(nn.Module):
         dropout=0.1,
         drop_path_rate=0.0,
         distilled=False,
-        channels=3,
+        channels=6,
     ):
         super().__init__()
         self.patch_embed = PatchEmbedding(
@@ -120,7 +120,7 @@ class VisionTransformer(nn.Module):
         pos_embed = self.pos_embed
         num_extra_tokens = 1 + self.distilled
         if x.shape[1] != pos_embed.shape[1]:
-            pos_embed = utils.resize_pos_embed(
+            pos_embed = resize_pos_embed(
                 pos_embed,
                 self.patch_embed.grid_size,
                 (H // PS, W // PS),

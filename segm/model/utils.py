@@ -8,7 +8,6 @@ from timm.models.layers import trunc_normal_
 
 import segm.utils.torch as ptu
 
-
 def init_weights(m):
     if isinstance(m, nn.Linear):
         trunc_normal_(m.weight, std=0.02)
